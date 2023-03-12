@@ -69,6 +69,26 @@
       var day = ('0' + today.getDate()).slice(-2);
       dateInput.value = year + '-' + month + '-' + day;
 
+      var datepicker = new Datepicker('#date-input', {
+        autohide: true,
+        buttonClass: 'btn',
+        format: 'yyyy-mm-dd',
+        startView: 0,
+        maxView: 3,
+        todayHighlight: true,
+        language: 'ja'
+      });
+
+      var clearButton = document.getElementById('clear-button');
+      clearButton.onclick = function() {
+        var dateInput = document.getElementById('date-input');
+        var date = dateInput.value;
+        if (localStorage[date]) {
+          localStorage.removeItem(date);
+          updateChart(date);
+        }
+      };
+
       var editButton = document.getElementById('edit-button');
       editButton.onclick = function() {
         var dateInput = document.getElementById('date-input');
@@ -89,26 +109,6 @@
         dateInput.value = date;
         subjectInput.value = subject;
         subjectInput.focus();
-      };
-
-      var datepicker = new Datepicker('#date-input', {
-        autohide: true,
-        buttonClass: 'btn',
-        format: 'yyyy-mm-dd',
-        startView: 0,
-        maxView: 3,
-        todayHighlight: true,
-        language: 'ja'
-      });
-
-      var clearButton = document.getElementById('clear-button');
-      clearButton.onclick = function() {
-        var dateInput = document.getElementById('date-input');
-        var date = dateInput.value;
-        if (localStorage[date]) {
-          localStorage.removeItem(date);
-          updateChart(date);
-        }
       };
     };
   </script>
