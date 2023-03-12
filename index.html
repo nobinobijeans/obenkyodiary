@@ -1,55 +1,125 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Study Tracker</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body>
-    <h1>Study Tracker</h1>
-    <form>
-      <label for="subject">Subject:</label>
-      <input type="text" id="subject" name="subject">
-      <br>
-      <label for="time">Time (in minutes):</label>
-      <input type="number" id="time" name="time">
-      <br>
-      <button type="button" onclick="addData()">Add Data</button>
-    </form>
-    <canvas id="myChart"></canvas>
-    <script>
-      var subjects = [];
-      var times = [];
-      var ctx = document.getElementById('myChart').getContext('2d');
-      var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: subjects,
-          datasets: [{
-            label: 'Study Time (in minutes)',
-            data: times,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
-            }]
+<head>
+  <title>Study Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/datepicker/js/datepicker.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/datepicker/css/datepicker.min.css" rel="stylesheet">
+  <style>
+    #chart label {
+      display: inline-block;
+      width: 80px;
+      text-align: right;
+      padding-right: 10px;
+      font-weight: bold;
+    }
+
+    #chart div {
+      margin-bottom: 10px;
+    }
+
+    #random-text {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Study Tracker</h1>
+  <label for="date-input">日付:</label>
+  <input type="text" id="date-input">
+  <br>
+  <label for="subject-input">科目:</label>
+  <input type="text" id="subject-input">
+  <br>
+  <label for="time-input">時間:</label>
+  <input type="text" id="time-input">
+  <button id="submit-button">追加</button>
+  <button id="clear-button">削除</button>
+  <button id="edit-button">編集</button>
+  <br>
+  <div id="chart"></div>
+  <div id="random-text"></div>
+  <script>
+    window.onload = function() {
+      var submitButton = document.getElementById('submit-button');
+      submitButton.onclick = function() {
+        var dateInput = document.getElementById('date-input');
+        var subjectInput = document.getElementById('subject-input');
+        var timeInput = document.getElementById('time-input');
+        var date = dateInput.value;
+        var subject = subjectInput.value;
+        var time = parseInt(timeInput.value);
+        if (!localStorage[date]) {
+          localStorage[date] = JSON.stringify({});
+        }
+        var data = JSON.parse(localStorage[date]);
+        if (!data[subject]) {
+          data[subject] = 0;
+        }
+        data[subject] += time;
+        localStorage[date] = JSON.stringify(data);
+        updateChart(date);
+        dateInput.value = '';
+        subjectInput.value = '';
+        timeInput.value = '';
+      };
+
+      var updateChart = function(date) {
+        var chart = document.getElementById('chart');
+        chart.innerHTML = '';
+        var data = JSON.parse(localStorage[date]);
+        var colors = {
+          '映像': '#FFC0CB',
+          '参考書': '#87CEFA',
+          'その他': '#98FB98'
+        };
+        for (var subject in data) {
+          if (data.hasOwnProperty(subject)) {
+            var value = data[subject];
+            var label = document.createElement('label');
+            label.textContent = subject + ' ';
+            label.style.color = colors[subject] || 'black';
+            chart.appendChild(label);
+            var bar = document.createElement('div');
+            bar.style.display = 'inline-block';
+            bar.style.width = (value * 10) + 'px';
+            bar.style.height = '20px';
+            bar.style.backgroundColor = colors[subject] || 'black';
+            bar.title = subject + ': ' + value + '時間';
+            chart.appendChild(bar);
+            chart.appendChild(document.createElement('br'));
           }
         }
-      });
-      function addData() {
-        var subject = document.getElementById('subject').value;
-        var time = document.getElementById('time').value;
-        subjects.push(subject);
-        times.push(time);
-        myChart.update();
-      }
-    </script>
-  </body>
+        var randomText = document.getElementById('random-text');
+        var options = ['あああああ', 'いいいいいい', 'あｇじゃｊが', 'ｇじゃいｊｇｈｒご'];
+        var index = Math.floor(Math.random() * options.length);
+        randomText.textContent = options[index];
+      };
+      
+            // チャートの初期表示
+      var dateInput = document.getElementById('date-input');
+      updateChart(dateInput.value);
+
+      // 日付が変更された時のイベントリスナー
+      dateInput.onchange = function() {
+        updateChart(dateInput.value);
+      };
+    };
+  </script>
+</head>
+<body>
+  <h1>Study Tracker</h1>
+  <form>
+    <label for="date-input">日付:</label>
+    <input type="text" id="date-input" name="date-input">
+    <label for="subject-input">科目:</label>
+    <input type="text" id="subject-input" name="subject-input">
+    <label for="time-input">時間:</label>
+    <input type="number" id="time-input" name="time-input">
+    <input type="button" id="submit-button" value="追加">
+    <input type="button" id="clear-button" value="削除">
+  </form>
+  <div id="chart"></div>
+  <p id="random-text"></p>
+</body>
 </html>
