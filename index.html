@@ -2,43 +2,6 @@
 <html>
 <head>
   <title>Study Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/datepicker/js/datepicker.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/datepicker/css/datepicker.min.css" rel="stylesheet">
-  <style>
-    #chart label {
-      display: inline-block;
-      width: 80px;
-      text-align: right;
-      padding-right: 10px;
-      font-weight: bold;
-    }
-
-    #chart div {
-      margin-bottom: 10px;
-    }
-
-    #random-text {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Study Tracker</h1>
-  <label for="date-input">日付:</label>
-  <input type="text" id="date-input">
-  <br>
-  <label for="subject-input">科目:</label>
-  <input type="text" id="subject-input">
-  <br>
-  <label for="time-input">時間:</label>
-  <input type="text" id="time-input">
-  <button id="submit-button">追加</button>
-  <button id="clear-button">削除</button>
-  <button id="edit-button">編集</button>
-  <br>
-  <div id="chart"></div>
-  <div id="random-text"></div>
   <script>
     window.onload = function() {
       var submitButton = document.getElementById('submit-button');
@@ -91,33 +54,74 @@
           }
         }
         var randomText = document.getElementById('random-text');
-        var options = ['あああああ', 'いいいいいい', 'あｇじゃｊが', 'ｇじゃいｊｇｈｒご'];
+        var options = ['毎日頑張ってて偉いねぇ＾～＾', 'いいねฅ(=^ω^~)ฅ', '明日もぎゃんばろうね', 'いやーい！いやーい！いゃーい...'];
         var index = Math.floor(Math.random() * options.length);
         randomText.textContent = options[index];
       };
-      
-            // チャートの初期表示
-      var dateInput = document.getElementById('date-input');
-      updateChart(dateInput.value);
 
-      // 日付が変更された時のイベントリスナー
-      dateInput.onchange = function() {
-        updateChart(dateInput.value);
+      var dateInput = document.getElementById('date-input');
+      var today = new Date();
+      var year = today.getFullYear();
+      var month = ('0' + (today.getMonth() + 1)).slice(-2);
+      var day = ('0' + today.getDate()).slice(-2);
+      dateInput.value = year + '-' + month + '-' + day;
+
+      var editButton = document.getElementById('edit-button');
+      editButton.onclick = function() {
+        var dateInput = document.getElementById('date-input');
+        var subjectInput = document.getElementById('subject-input');
+        var timeInput = document.getElementById('time-input');
+        var date = dateInput.value;
+        var subject = subjectInput.value;
+        var time = parseInt(timeInput.value);
+        if (localStorage[date]) {
+          var data = JSON.parse(localStorage[date]);
+          if (data[subject]) {
+            timeInput.value = data[subject];
+            delete data[subject];
+            localStorage[date] = JSON.stringify(data);
+            updateChart(date);
+          }
+        }
+        dateInput.value = date;
+        subjectInput.value = subject;
+        subjectInput.focus();
+      };
+
+      var datepicker = new Datepicker('#date-input', {
+        autohide: true,
+        buttonClass: 'btn',
+        format: 'yyyy-mm-dd',
+        startView: 0,
+        maxView: 3,
+        todayHighlight: true,
+        language: 'ja'
+      });
+
+      var clearButton = document.getElementById('clear-button');
+      clearButton.onclick = function() {
+        var dateInput = document.getElementById('date-input');
+        var date = dateInput.value;
+        if (localStorage[date]) {
+          localStorage.removeItem(date);
+          updateChart(date);
+        }
       };
     };
   </script>
 </head>
 <body>
-  <h1>Study Tracker</h1>
+  <h1>勉強時間管理アプリ</h1>
   <form>
-    <label for="date-input">日付:</label>
-    <input type="text" id="date-input" name="date-input">
-    <label for="subject-input">科目:</label>
-    <input type="text" id="subject-input" name="subject-input">
-    <label for="time-input">時間:</label>
-    <input type="number" id="time-input" name="time-input">
-    <input type="button" id="submit-button" value="追加">
-    <input type="button" id="clear-button" value="削除">
+    <label for="date-input">日付</label>
+    <input type="text" id="date-input">
+    <label for="subject-input">教科</label>
+    <input type="text" id="subject-input">
+    <label for="time-input">時間（時間単位）</label>
+    <input type="number" id="time-input" min="1" max="24">
+    <button type="button" id="submit-button">記録</button>
+    <button type="button" id="clear-button">クリア</button>
+    <button type="button" id="edit-button">編集</button>
   </form>
   <div id="chart"></div>
   <p id="random-text"></p>
